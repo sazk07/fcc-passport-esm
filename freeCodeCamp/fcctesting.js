@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { readFile } from 'fs'
+import { app } from '../app.js'
 
 const allowedOrigins = [
   /^https?:\/\/([\w-]+\.)*freecodecamp.org/,
@@ -27,7 +28,7 @@ router.get("/app", (req, res) => {
 
 router.get("/server.js", (req, res, next) => {
   console.log("requested")
-  readFile(`${process.cwd()}/server.js`, (err, data) => {
+  readFile(`${process.cwd()}/app.js`, (err, data) => {
     if (err) {
       return next(err)
     }
@@ -35,9 +36,9 @@ router.get("/server.js", (req, res, next) => {
   })
 })
 
-router.get("routes.js", (req, res, next) => {
+router.get("/routes.js", (req, res, next) => {
   console.log("requested")
-  readFile(`${process.cwd()}/routes.js`, (err, data) => {
+  readFile(`${process.cwd()}/routes/index.js`, (err, data) => {
     if (err) {
       return next(err)
     }
@@ -55,7 +56,7 @@ router.get("/auth.js", (req, res, next) => {
   })
 })
 
-router.get("/package.json"), (req, res, next) => {
+router.get("/package.json", (req, res, next) => {
   console.log("requested");
   readFile(`${process.cwd()}/package.json`, "utf-8", (err, data) => {
     if (err) {
@@ -63,7 +64,7 @@ router.get("/package.json"), (req, res, next) => {
     }
     res.json(JSON.parse(data));
   });
-};
+});
 
 router.get("/app-info", (req, res) => {
   const hs = Object.keys(res._headers).filter(

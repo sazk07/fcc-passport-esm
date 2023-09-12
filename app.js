@@ -4,6 +4,8 @@ import express from 'express'
 import path from 'path'
 import cookieParser from 'cookie-parser';
 import logger from 'morgan'
+import session from 'express-session';
+import passport from 'passport';
 import * as url from 'url'
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
@@ -14,7 +16,7 @@ import { fccTesting } from './freeCodeCamp/fcctesting.js';
 const app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', './views/pug');
 app.set('view engine', 'pug');
 
 app.use(logger('dev'));
@@ -22,6 +24,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: true,
+  saveUninitialized: true,
+  cookie: { secure: false }
+}))
+app.use(passport.initialize())
+app.use(passport.session())
 
 app.use('/', indexRouter);
 app.use('/_api', fccTesting)
