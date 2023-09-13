@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan'
 import session from 'express-session';
 import passport from 'passport';
+import { ObjectId } from 'mongodb';
+
 import * as url from 'url'
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
@@ -25,6 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// initialize session
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: true,
@@ -33,6 +36,14 @@ app.use(session({
 }))
 app.use(passport.initialize())
 app.use(passport.session())
+
+// serialize and deserialize user object (convert the object's contents into a key)
+passport.serializeUser((user, done) => {
+  return done(null, user._id)
+})
+passport.deserializeUser((user, done) => {
+  return done(null, null)
+})
 
 app.use('/', indexRouter);
 app.use('/_api', fccTesting)
