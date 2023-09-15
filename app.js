@@ -11,15 +11,15 @@ import { ObjectId } from 'mongodb';
 import * as url from 'url'
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
-import myDB from './connection.js'
+import { main as myDB } from './connection.js';
 import { indexRouter } from './routes/index.js'
 import { fccTesting } from './freeCodeCamp/fcctesting.js';
 
 const app = express();
 
 // view engine setup
-app.set('views', './views/pug');
 app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views', 'pug'));
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -37,17 +37,28 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-// serialize and deserialize user object (convert the object's contents into a key)
-passport.serializeUser((user, done) => {
-  return done(null, user._id)
+myDB(async client => {
+  const myDatabase = await client.db('database').collection('users')
+  app.get('/', indexRouter);
+  app.get('/_api', fccTesting)
+  // serialize and deserialize user object (convert the object's contents into a key)
+  passport.serializeUser((user, done) => {
+    return done(null, user._id)
+  })
+  passport.deserializeUser((user, done) => {
+    const doc = myDatabase.find({
+      _id: new ObjectId(id)
+    })
+    return done(null, doc)
+  })
+}).catch(e => {
+  app.get('/', (req, res) => {
+    res.render('index', {
+      title: e,
+      message: 'Unable to connect to database'
+    })
+  })
 })
-passport.deserializeUser((user, done) => {
-  return done(null, null)
-})
-
-app.use('/', indexRouter);
-app.use('/_api', fccTesting)
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createHttpError(404));

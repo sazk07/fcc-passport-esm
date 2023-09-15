@@ -3,7 +3,10 @@ const router = Router()
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
-  res.render('index', { title: JSON.stringify(req.session.id), message: 'Please log in' });
+  return res.render('index', {
+    title: 'Connected to Database',
+    message: 'Please log in'
+  });
 });
 
 export {
