@@ -39,7 +39,12 @@ app.use(passport.session())
 
 myDB(async client => {
   const myDatabase = await client.db('database').collection('users')
-  app.use(indexRouter)
+  app.get('/', (req, res, next) => {
+    return res.render('index', {
+      title: 'Connected to Database',
+      message: 'Please log in'
+    });
+  });
   // serialize and deserialize user object (convert the object's contents into a key)
   passport.serializeUser((user, done) => {
     return done(null, user._id)
