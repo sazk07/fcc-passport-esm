@@ -39,8 +39,8 @@ app.use(passport.session())
 
 myDB(async client => {
   const myDatabase = await client.db('database').collection('users')
-  app.use('/', indexRouter);
-  app.use('/_api', fccTesting)
+  app.get('/', indexRouter);
+  app.get('/_api', fccTesting)
   // serialize and deserialize user object (convert the object's contents into a key)
   passport.serializeUser((user, done) => {
     return done(null, user._id)
