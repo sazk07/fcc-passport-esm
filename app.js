@@ -39,8 +39,9 @@ app.use(passport.session())
 
 myDB(async client => {
   const myDatabase = await client.db('database').collection('users')
-  app.get('/', indexRouter);
-  app.get('/_api', fccTesting)
+  app.use('/', (req, res, next) => {
+    next(indexRouter)
+  });
   // serialize and deserialize user object (convert the object's contents into a key)
   passport.serializeUser((user, done) => {
     return done(null, user._id)
@@ -59,6 +60,10 @@ myDB(async client => {
     })
   })
 })
+
+app.get('/', indexRouter);
+app.get('/_api', fccTesting)
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createHttpError(404));
