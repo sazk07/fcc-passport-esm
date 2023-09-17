@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { MongoClient } from 'mongodb'
 
-export const main = async (callback) => {
+export const main = async () => {
   const URI = process.env.MONGO_URI
   const client = new MongoClient(URI)
   try {
@@ -9,7 +9,7 @@ export const main = async (callback) => {
     await client.connect()
     console.log('connected successfully to server')
     // Make the appropriate DB calls
-    await callback(client)
+    const myDatabase = client.db('database').collection('users')
   } catch (e) {
     // Catch any errors
     console.error(e)

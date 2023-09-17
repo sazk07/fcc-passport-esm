@@ -39,8 +39,23 @@ app.use(passport.session())
 
 myDB()
   .then(() => {
-    const myDatabase = client.db('database').collection('users')
-    app.get(indexRouter);
+    app.use(indexRouter);
+    app.use('/_api', fccTesting)
+    // catch 404 and forward to error handler
+    app.use((req, res, next) => {
+      next(createHttpError(404));
+    });
+
+    // error handler
+    app.use((err, req, res, next) => {
+      // set locals, only providing error in development
+      res.locals.message = err.message;
+      res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+      // render the error page
+      res.status(err.status || 500);
+      res.render('error');
+    });
     // serialize and deserialize user object (convert the object's contents into a key)
     passport.serializeUser((user, done) => {
       return done(null, user._id)
@@ -60,27 +75,6 @@ myDB()
       })
     })
   })
-  .finally(() => client.close())
-
-
-
-app.get('/_api', fccTesting)
-
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-  next(createHttpError(404));
-});
-
-// error handler
-app.use((err, req, res, next) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
 
 export {
   app
