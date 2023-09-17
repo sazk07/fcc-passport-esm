@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { MongoClient } from 'mongodb'
 
-export const main = async (callback) => {
+export const main = async callback => {
   const URI = process.env.MONGO_URI
   const client = new MongoClient(URI)
   try {

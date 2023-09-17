@@ -37,14 +37,9 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-myDB(async client => {
-  const myDatabase = await client.db('database').collection('users')
-  app.get('/', (req, res, next) => {
-    return res.render('index', {
-      title: 'Connected to Database',
-      message: 'Please log in'
-    });
-  });
+myDB().then(() => {
+  const myDatabase = client.db('database').collection('users')
+  app.get(indexRouter);
   // serialize and deserialize user object (convert the object's contents into a key)
   passport.serializeUser((user, done) => {
     return done(null, user._id)
@@ -55,7 +50,7 @@ myDB(async client => {
     })
     return done(null, doc)
   })
-}).catch(e => {
+}).catch((e) => {
   app.get('/', (req, res) => {
     res.render('index', {
       title: e,
@@ -64,15 +59,17 @@ myDB(async client => {
   })
 })
 
+
+
 app.get('/_api', fccTesting)
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createHttpError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
