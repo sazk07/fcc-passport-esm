@@ -37,27 +37,30 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-myDB().then(() => {
-  const myDatabase = client.db('database').collection('users')
-  app.get(indexRouter);
-  // serialize and deserialize user object (convert the object's contents into a key)
-  passport.serializeUser((user, done) => {
-    return done(null, user._id)
-  })
-  passport.deserializeUser((user, done) => {
-    const doc = myDatabase.find({
-      _id: new ObjectId(id)
+myDB()
+  .then(() => {
+    const myDatabase = client.db('database').collection('users')
+    app.get(indexRouter);
+    // serialize and deserialize user object (convert the object's contents into a key)
+    passport.serializeUser((user, done) => {
+      return done(null, user._id)
     })
-    return done(null, doc)
-  })
-}).catch((e) => {
-  app.get('/', (req, res) => {
-    res.render('index', {
-      title: e,
-      message: 'Unable to connect to database'
+    passport.deserializeUser((user, done) => {
+      const doc = myDatabase.find({
+        _id: new ObjectId(id)
+      })
+      return done(null, doc)
     })
   })
-})
+  .catch((e) => {
+    app.get('/', (req, res) => {
+      res.render('index', {
+        title: e,
+        message: 'Cannot connect to database'
+      })
+    })
+  })
+  .finally(() => client.close())
 
 
 
